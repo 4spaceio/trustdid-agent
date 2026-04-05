@@ -1,0 +1,20 @@
+[package]
+name = "trustdid-registrar"
+description = "TrustDID Universal Registrar service"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+trustdid-core = { workspace = true }
+trustdid-crypto = { workspace = true }
+trustdid-agent = { path = "../../crates/trustdid-agent" }
+tokio = { workspace = true }
+axum = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+tower-http = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Delegation Protocol - TrustDID</title>
+    <style>
+        :root { --bg: #0a0a0f; --surface: #12121a; --border: #1e1e2e; --text: #e4e4ef; --muted: #8888a0; --accent: #818cf8; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+        .container { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+        nav { border-bottom: 1px solid var(--border); padding: 16px 0; }
+        nav .container { display: flex; justify-content: space-between; align-items: center; max-width: 800px; }
+        .logo { font-size: 20px; font-weight: 700; color: var(--accent); text-decoration: none; }
+        .logo span { color: var(--text); }
+        nav a { color: var(--muted); text-decoration: none; margin-left: 24px; font-size: 14px; }
+        nav a:hover { color: var(--text); }
+        h1 { font-size: 32px; font-weight: 700; margin: 48px 0 8px; }
+        h2 { font-size: 24px; font-weight: 600; margin: 40px 0 12px; color: var(--accent); }
+        h3 { font-size: 18px; font-weight: 600; margin: 28px 0 8px; }
+        p { margin: 12px 0; color: var(--muted); }
+        pre { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; overflow-x: auto; margin: 16px 0; font-size: 13px; }
+        code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; }
+        p code { background: var(--surface); padding: 2px 6px; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+        th { text-align: left; padding: 10px; border-bottom: 2px solid var(--border); color: var(--text); }
+        td { padding: 10px; border-bottom: 1px solid var(--border); color: var(--muted); }
+        .badge { display: inline-block; background: rgba(129,140,248,0.12); color: var(--accent); padding: 4px 12px; border-radius: 12px; font-size: 12px; margin-bottom: 24px; }
+        ul, ol { margin: 12px 0 12px 24px; color: var(--muted); }
+        li { margin: 6px 0; }
+        footer { border-top: 1px solid var(--border); padding: 24px 0; text-align: center; color: var(--muted); font-size: 12px; margin-top: 60px; }
+    </style>
+</head>
+<body>
+    <nav><div class="container">
+        <a href="/" class="logo">Trust<span>DID</span></a>
+        <div>
+            <a href="/spec/did-method-spec.html">Method Spec</a>
+            <a href="/spec/capability-credential.html">Credentials</a>
+            <a href="/spec/delegation-protocol.html">Delegation</a>
+            <a href="/spec/discovery-protocol.html">Discovery</a>
+            <a href="/">Home</a>
+        </div>
+    </div></nav>
+    <div class="container">
+        <h1>TrustDID Agent Delegation Protocol</h1>
+        <span class="badge">v0.1.0 - Draft</span>
+
+        <h2>1. Overview</h2>
+        <p>This protocol defines how delegation of capabilities flows from human controllers through organizations to AI agents within the TrustDID ecosystem, using DIDComm v2.1 messaging and W3C Verifiable Credentials v2.0.</p>
+
+        <h2>2. Delegation Chain</h2>
+        <pre><code>Human (depth 0) -> Organization (depth 1) -> Agent (depth 2) -> Sub-Agent (depth 3)</code></pre>
+        <ul>
+            <li>Maximum depth: 10 (configurable per ecosystem)</li>
+            <li>Capabilities MUST attenuate (narrow) at each delegation step</li>
+            <li>Each link is recorded as an <code>AgentDelegationCredential</code> (W3C VC v2.0)</li>
+            <li>On-chain registration via <code>DelegationChain.sol</code> for chain-of-custody verification</li>
+        </ul>
+
+        <h2>3. Protocol Flow</h2>
+
+        <h3>3.1 Delegation Request (DIDComm)</h3>
+        <pre><code>Parent -> Child: DIDComm message type "https://trustdid.org/delegation/1.0/offer"
+  body: { capabilities, maxDepth, expiresAt }
+
+Child -> Parent: DIDComm message type "https://trustdid.org/delegation/1.0/accept"
+
+Parent -> Registrar: POST /1.0/delegate
+
+Registrar -> Chain: Register delegation on-chain
+
+Registrar -> Parent: Return AgentDelegationCredential
+
+Parent -> Child: Forward credential via DIDComm</code></pre>
+
+        <h3>3.2 Capability Attenuation Rules</h3>
+        <ul>
+            <li>Child capabilities MUST be a subset of parent capabilities</li>
+            <li>Numeric constraints MUST be equal or stricter (e.g., <code>limit=1000</code> -> <code>limit=500</code>)</li>
+            <li>New capabilities CANNOT be introduced at delegation</li>
+        </ul>
+
+        <h3>3.3 Cascading Revocation</h3>
+        <ul>
+            <li>Revoking a parent delegation MUST cascade to all children</li>
+            <li>On-chain cascade via <code>DelegationChain.sol::revokeDelegation(id, cascade=true)</code></li>
+            <li>Off-chain VC revocation via Bitstring Status List</li>
+        </ul>
+
+        <h2>4. Agent-to-Agent Authentication</h2>
+
+        <h3>4.1 Auth Flow (DIDComm)</h3>
+        <pre><code>AgentA -> AgentB: auth_request { required_capabilities }
+
+AgentB -> Resolver: Resolve AgentA DID
+
+AgentB -> Chain: Verify AgentA delegation chain
+
+AgentB -> TrustRegistry: Check AgentA trust score >= threshold
+
+AgentB -> AgentA: auth_response { delegation_chain_proof, trust_score }
+
+Both: Mutual authentication established</code></pre>
+
+        <h2>5. Decommission Protocol</h2>
+        <ol>
+            <li>Dual-signature authorization (parent + agent, or parent alone)</li>
+            <li>Cascade-revoke all sub-delegations (on-chain + off-chain)</li>
+            <li>Revoke all issued credentials</li>
+            <li>Archive SBT reputation record (score -> 0)</li>
+            <li>Set lifecycle to <code>decommissioned</code> (irreversible)</li>
+        </ol>
+    </div>
+    <footer><div class="container">TrustDID Foundation &copy; 2026</div></footer>
+</body>
+</html>

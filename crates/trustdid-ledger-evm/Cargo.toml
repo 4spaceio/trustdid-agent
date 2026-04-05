@@ -1,0 +1,22 @@
+[package]
+name = "trustdid-ledger-evm"
+description = "EVM ledger driver for TrustDID (Ethereum, Polygon, Arbitrum)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+trustdid-core = { workspace = true }
+alloy = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+sha2 = { workspace = true }
+chrono = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+tokio = { workspace = true, features = ["test-util"] }

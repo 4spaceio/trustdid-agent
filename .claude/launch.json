@@ -1,0 +1,35 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "resolver",
+      "runtimeExecutable": "/Users/vl/.cargo/bin/cargo",
+      "runtimeArgs": ["run", "-p", "trustdid-resolver"],
+      "port": 3000
+    },
+    {
+      "name": "registrar",
+      "runtimeExecutable": "/Users/vl/.cargo/bin/cargo",
+      "runtimeArgs": ["run", "-p", "trustdid-registrar"],
+      "port": 3001
+    },
+    {
+      "name": "mediator",
+      "runtimeExecutable": "/Users/vl/.cargo/bin/cargo",
+      "runtimeArgs": ["run", "-p", "trustdid-mediator"],
+      "port": 3002
+    },
+    {
+      "name": "trust-registry",
+      "runtimeExecutable": "/Users/vl/.cargo/bin/cargo",
+      "runtimeArgs": ["run", "-p", "trustdid-trust-registry"],
+      "port": 3003
+    },
+    {
+      "name": "discovery",
+      "runtimeExecutable": "/Users/vl/.cargo/bin/cargo",
+      "runtimeArgs": ["run", "-p", "trustdid-discovery"],
+      "port": 3004
+    }
+  ]
+}

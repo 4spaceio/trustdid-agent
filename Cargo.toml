@@ -1,0 +1,98 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/trustdid-core",
+    "crates/trustdid-crypto",
+    "crates/trustdid-method",
+    "crates/trustdid-ledger-evm",
+    "crates/trustdid-ledger-keri",
+    "crates/trustdid-ledger-web",
+    "crates/trustdid-vc",
+    "crates/trustdid-sdjwt",
+    "crates/trustdid-didcomm",
+    "crates/trustdid-keri",
+    "crates/trustdid-agent",
+    "crates/trustdid-trust",
+    "crates/trustdid-oid4vc",
+    "crates/trustdid",
+    "services/resolver",
+    "services/registrar",
+    "services/mediator",
+    "services/trust-registry",
+    "services/discovery",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/anthropics/trustdid-agent"
+rust-version = "1.85"
+
+[workspace.dependencies]
+# Internal crates
+trustdid-core = { path = "crates/trustdid-core" }
+trustdid-crypto = { path = "crates/trustdid-crypto" }
+trustdid-method = { path = "crates/trustdid-method" }
+trustdid-ledger-evm = { path = "crates/trustdid-ledger-evm" }
+trustdid-ledger-keri = { path = "crates/trustdid-ledger-keri" }
+trustdid-ledger-web = { path = "crates/trustdid-ledger-web" }
+trustdid-vc = { path = "crates/trustdid-vc" }
+trustdid-sdjwt = { path = "crates/trustdid-sdjwt" }
+trustdid-didcomm = { path = "crates/trustdid-didcomm" }
+trustdid-keri = { path = "crates/trustdid-keri" }
+trustdid-agent = { path = "crates/trustdid-agent" }
+trustdid-trust = { path = "crates/trustdid-trust" }
+trustdid-oid4vc = { path = "crates/trustdid-oid4vc" }
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Cryptography
+ed25519-dalek = { version = "2", features = ["serde", "rand_core"] }
+k256 = { version = "0.13", features = ["ecdsa", "serde"] }
+p256 = { version = "0.13", features = ["ecdsa", "serde"] }
+x25519-dalek = { version = "2", features = ["serde"] }
+sha2 = "0.10"
+rand = "0.8"
+bs58 = "0.5"
+multibase = "0.9"
+base64 = "0.22"
+
+# Web framework
+axum = { version = "0.8", features = ["macros"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors", "trace"] }
+
+# Ethereum
+alloy = { version = "1.8", features = ["full"] }
+
+# Error handling
+thiserror = "2"
+anyhow = "1"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# URL/URI
+url = "2"
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# UUID
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# Testing
+pretty_assertions = "1"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true

@@ -1,0 +1,11 @@
+[package]
+name = "trustdid"
+description = "TrustDID facade crate - re-exports all components"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+trustdid-core = { workspace = true }
+trustdid-crypto = { workspace = true }
+trustdid-method = { workspace = true }

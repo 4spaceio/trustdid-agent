@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustDID - Decentralized Identity for AI Agents</title>
+    <meta name="description" content="World-class decentralized identity system for autonomous AI agents. W3C DID Core v1.1 compliant.">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #12121a;
+            --border: #1e1e2e;
+            --text: #e4e4ef;
+            --muted: #8888a0;
+            --accent: #6366f1;
+            --accent2: #818cf8;
+            --green: #22c55e;
+            --blue: #3b82f6;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+        /* Nav */
+        nav {
+            border-bottom: 1px solid var(--border);
+            padding: 16px 0;
+        }
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent2);
+            text-decoration: none;
+        }
+        .logo span { color: var(--text); }
+        nav a {
+            color: var(--muted);
+            text-decoration: none;
+            margin-left: 32px;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+        nav a:hover { color: var(--text); }
+
+        /* Hero */
+        .hero {
+            padding: 100px 0 80px;
+            text-align: center;
+        }
+        .hero .badge {
+            display: inline-block;
+            background: rgba(99,102,241,0.12);
+            color: var(--accent2);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 24px;
+            border: 1px solid rgba(99,102,241,0.2);
+        }
+        .hero h1 {
+            font-size: 52px;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+        .hero h1 em {
+            font-style: normal;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero p {
+            font-size: 18px;
+            color: var(--muted);
+            max-width: 620px;
+            margin: 0 auto 40px;
+        }
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        .btn-primary:hover { background: var(--accent2); }
+        .btn-outline {
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn-outline:hover { border-color: var(--accent); }
+
+        /* DID Demo */
+        .did-demo {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 28px;
+            margin: 48px auto 0;
+            max-width: 760px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 14px;
+            text-align: left;
+            overflow-x: auto;
+        }
+        .did-demo .comment { color: var(--muted); }
+        .did-demo .method { color: var(--accent2); }
+        .did-demo .network { color: var(--green); }
+        .did-demo .class { color: #f59e0b; }
+        .did-demo .id { color: var(--blue); }
+
+        /* Features */
+        .features {
+            padding: 80px 0;
+        }
+        .features h2 {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 48px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        .feature-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px;
+        }
+        .feature-card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        .feature-card p { color: var(--muted); font-size: 14px; }
+        .feature-icon {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        /* Standards */
+        .standards {
+            padding: 60px 0 80px;
+            text-align: center;
+        }
+        .standards h2 {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+        .standards p { color: var(--muted); margin-bottom: 32px; }
+        .standard-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .pill {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 32px 0;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 32px; }
+            .hero p { font-size: 16px; }
+            .did-demo { font-size: 11px; padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="/" class="logo">Trust<span>DID</span></a>
+            <div>
+                <a href="/spec/did-method-spec.html">Spec</a>
+                <a href="/spec/capability-credential.html">Credentials</a>
+                <a href="https://github.com/anthropics/trustdid-agent">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <div class="badge">W3C DID Core v1.1 Compliant</div>
+            <h1>Decentralized Identity<br>for <em>AI Agents</em></h1>
+            <p>The world-class identity system for autonomous AI agents. Create, delegate, verify, and manage agent identities across any ledger.</p>
+            <div class="hero-buttons">
+                <a href="/spec/did-method-spec.html" class="btn btn-primary">Read the Spec</a>
+                <a href="https://github.com/anthropics/trustdid-agent" class="btn btn-outline">View on GitHub</a>
+            </div>
+
+            <div class="did-demo">
+                <div class="comment">// The did:trustagent method</div>
+                <div>did:<span class="method">trustagent</span>:<span class="network">evm:137</span>:<span class="class">delegated</span>:<span class="id">z6Mkf5rGMoatrSj1f4CyvuHBeXJELe9RPdzo2PKGNCKVtZxP</span></div>
+                <br>
+                <div class="comment">// Ledger-agnostic: EVM, KERI, or Web</div>
+                <div>did:<span class="method">trustagent</span>:<span class="network">keri</span>:<span class="class">autonomous</span>:<span class="id">z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK</span></div>
+                <div>did:<span class="method">trustagent</span>:<span class="network">web:example.com</span>:<span class="class">org</span>:<span class="id">z6MkjchhfUsD6mmvni8mCdXHw216Xrm9bQe2xJfmm7M8Go8J</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <h2>Built for Agents</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">&#x1f511;</div>
+                    <h3>KERI Pre-Rotation</h3>
+                    <p>Autonomous key rotation without human intervention. Pre-committed next keys ensure seamless rotation even for long-running agents.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#x1f517;</div>
+                    <h3>Delegation Chains</h3>
+                    <p>Human &rarr; Org &rarr; Agent &rarr; Sub-Agent. Capability attenuation at every step. Cascading revocation when trust is broken.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#x1f30d;</div>
+                    <h3>Ledger-Agnostic</h3>
+                    <p>One DID method across EVM chains (Ethereum, Polygon), KERI infrastructure (ledger-less), and web-based resolution.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#x1f4dc;</div>
+                    <h3>W3C VC v2.0</h3>
+                    <p>Full Verifiable Credentials engine with SD-JWT selective disclosure. Issue, verify, and revoke agent capability credentials.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#x1f4ac;</div>
+                    <h3>DIDComm v2.1</h3>
+                    <p>Secure agent-to-agent messaging with authenticated encryption. Trust-ping, agent-auth, and custom protocol support.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#x2b50;</div>
+                    <h3>Trust Scoring</h3>
+                    <p>On-chain SBT reputation tokens. Weighted scoring based on delegation depth, endorsements, identity age, and behavior.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="standards">
+        <div class="container">
+            <h2>Standards Aligned</h2>
+            <p>Built on and contributing to the global identity standards ecosystem</p>
+            <div class="standard-pills">
+                <span class="pill">W3C DID Core v1.1</span>
+                <span class="pill">W3C VC v2.0</span>
+                <span class="pill">DIDComm v2.1</span>
+                <span class="pill">SD-JWT (RFC 9901)</span>
+                <span class="pill">OID4VC</span>
+                <span class="pill">KERI</span>
+                <span class="pill">ToIP Framework</span>
+                <span class="pill">NIST AI Agent Standards</span>
+                <span class="pill">AIS-1</span>
+                <span class="pill">DIF MCP-I</span>
+                <span class="pill">CSA Agentic AI IAM</span>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            TrustDID Foundation &copy; 2026. Apache-2.0 / MIT dual license.
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,67 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "trustagent": "https://trustdid.org/ns/agent/v1#",
+    "agentClass": {
+      "@id": "trustagent:agentClass",
+      "@type": "xsd:string"
+    },
+    "parentDID": {
+      "@id": "trustagent:parentDID",
+      "@type": "@id"
+    },
+    "delegationChainRoot": {
+      "@id": "trustagent:delegationChainRoot",
+      "@type": "@id"
+    },
+    "delegationDepth": {
+      "@id": "trustagent:delegationDepth",
+      "@type": "xsd:nonNegativeInteger"
+    },
+    "preRotationCommitment": {
+      "@id": "trustagent:preRotationCommitment",
+      "@type": "xsd:string"
+    },
+    "lifecycle": {
+      "@id": "trustagent:lifecycle",
+      "@type": "xsd:string"
+    },
+    "capabilities": {
+      "@id": "trustagent:capabilities",
+      "@container": "@set"
+    },
+    "trustScore": {
+      "@id": "trustagent:trustScore",
+      "@type": "xsd:nonNegativeInteger"
+    },
+    "endorsements": {
+      "@id": "trustagent:endorsements",
+      "@type": "xsd:nonNegativeInteger"
+    },
+    "behaviorHash": {
+      "@id": "trustagent:behaviorHash",
+      "@type": "xsd:string"
+    },
+    "maxDepth": {
+      "@id": "trustagent:maxDepth",
+      "@type": "xsd:nonNegativeInteger"
+    },
+    "delegationType": {
+      "@id": "trustagent:delegationType",
+      "@type": "xsd:string"
+    },
+    "grantedAt": {
+      "@id": "trustagent:grantedAt",
+      "@type": "xsd:dateTime"
+    },
+    "evaluatedAt": {
+      "@id": "trustagent:evaluatedAt",
+      "@type": "xsd:dateTime"
+    },
+    "AgentDelegationCredential": "trustagent:AgentDelegationCredential",
+    "AgentCapabilityCredential": "trustagent:AgentCapabilityCredential",
+    "AgentTrustScoreCredential": "trustagent:AgentTrustScoreCredential",
+    "AgentIdentityCredential": "trustagent:AgentIdentityCredential",
+    "AgentDiscovery": "trustagent:AgentDiscovery"
+  }
+}

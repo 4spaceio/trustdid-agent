@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Discovery Protocol - TrustDID</title>
+    <style>
+        :root { --bg: #0a0a0f; --surface: #12121a; --border: #1e1e2e; --text: #e4e4ef; --muted: #8888a0; --accent: #818cf8; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+        .container { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+        nav { border-bottom: 1px solid var(--border); padding: 16px 0; }
+        nav .container { display: flex; justify-content: space-between; align-items: center; max-width: 800px; }
+        .logo { font-size: 20px; font-weight: 700; color: var(--accent); text-decoration: none; }
+        .logo span { color: var(--text); }
+        nav a { color: var(--muted); text-decoration: none; margin-left: 24px; font-size: 14px; }
+        nav a:hover { color: var(--text); }
+        h1 { font-size: 32px; font-weight: 700; margin: 48px 0 8px; }
+        h2 { font-size: 24px; font-weight: 600; margin: 40px 0 12px; color: var(--accent); }
+        h3 { font-size: 18px; font-weight: 600; margin: 28px 0 8px; }
+        p { margin: 12px 0; color: var(--muted); }
+        pre { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; overflow-x: auto; margin: 16px 0; font-size: 13px; }
+        code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; }
+        p code { background: var(--surface); padding: 2px 6px; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+        th { text-align: left; padding: 10px; border-bottom: 2px solid var(--border); color: var(--text); }
+        td { padding: 10px; border-bottom: 1px solid var(--border); color: var(--muted); }
+        .badge { display: inline-block; background: rgba(129,140,248,0.12); color: var(--accent); padding: 4px 12px; border-radius: 12px; font-size: 12px; margin-bottom: 24px; }
+        ul, ol { margin: 12px 0 12px 24px; color: var(--muted); }
+        li { margin: 6px 0; }
+        footer { border-top: 1px solid var(--border); padding: 24px 0; text-align: center; color: var(--muted); font-size: 12px; margin-top: 60px; }
+    </style>
+</head>
+<body>
+    <nav><div class="container">
+        <a href="/" class="logo">Trust<span>DID</span></a>
+        <div>
+            <a href="/spec/did-method-spec.html">Method Spec</a>
+            <a href="/spec/capability-credential.html">Credentials</a>
+            <a href="/spec/delegation-protocol.html">Delegation</a>
+            <a href="/spec/discovery-protocol.html">Discovery</a>
+            <a href="/">Home</a>
+        </div>
+    </div></nav>
+    <div class="container">
+        <h1>TrustDID Agent Discovery Protocol</h1>
+        <span class="badge">v0.1.0 - Draft</span>
+
+        <h2>1. Overview</h2>
+        <p>This protocol defines how AI agents discover, evaluate, and connect with other agents in the TrustDID ecosystem using capability-based search, trust scoring, and delegation chain verification.</p>
+
+        <h2>2. Discovery Service API</h2>
+
+        <h3>2.1 Agent Registration</h3>
+        <pre><code>POST /agents/register
+{
+  "did": "did:trustagent:evm:137:autonomous:z6Mk...",
+  "agentClass": "autonomous",
+  "capabilities": ["credential:issue", "data:read:scope=public"],
+  "trustScore": 8500,
+  "serviceEndpoints": {
+    "didcomm": "https://agent.example.com/didcomm",
+    "api": "https://agent.example.com/api/v1"
+  }
+}</code></pre>
+
+        <h3>2.2 Capability-Based Search</h3>
+        <pre><code>GET /agents?capability=credential:issue&amp;minTrust=5000&amp;agentClass=autonomous</code></pre>
+
+        <h3>2.3 Agent Verification</h3>
+        <pre><code>POST /agents/{did}/verify
+
+Response:
+{
+  "verified": true,
+  "checks": {
+    "did_valid": true,
+    "registered": true,
+    "trust_score": { "score": 8500, "meets_threshold": true },
+    "delegation_chain": { "valid": true, "depth": 2 }
+  }
+}</code></pre>
+
+        <h2>3. Trust Evaluation</h2>
+        <p>Agents are scored on four factors (weighted):</p>
+        <table>
+            <tr><th>Factor</th><th>Weight</th><th>Description</th></tr>
+            <tr><td>Delegation depth</td><td>30%</td><td>Closer to root = higher trust</td></tr>
+            <tr><td>Endorsements</td><td>30%</td><td>Number and weight of endorsements</td></tr>
+            <tr><td>Identity age</td><td>15%</td><td>Older = more established</td></tr>
+            <tr><td>Behavior score</td><td>25%</td><td>On-chain behavior Merkle root verification</td></tr>
+        </table>
+
+        <h2>4. Integration with DIDComm</h2>
+        <p>After discovery, agents establish secure communication via:</p>
+        <ol>
+            <li>Resolve target agent's DID Document</li>
+            <li>Extract DIDComm service endpoint</li>
+            <li>Send <code>trust-ping</code> for liveness</li>
+            <li>Perform <code>agent-auth</code> protocol for mutual authentication</li>
+            <li>Begin capability-gated interactions</li>
+        </ol>
+    </div>
+    <footer><div class="container">TrustDID Foundation &copy; 2026</div></footer>
+</body>
+</html>

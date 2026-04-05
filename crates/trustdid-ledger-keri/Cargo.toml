@@ -1,0 +1,23 @@
+[package]
+name = "trustdid-ledger-keri"
+description = "KERI ledger driver for TrustDID (ledger-less)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+trustdid-core = { workspace = true }
+trustdid-crypto = { workspace = true }
+trustdid-keri = { path = "../trustdid-keri" }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+chrono = { workspace = true }
+tracing = { workspace = true }
+sha2 = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+tokio = { workspace = true, features = ["test-util"] }

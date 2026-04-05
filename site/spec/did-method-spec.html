@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DID Method Specification - TrustDID</title>
+    <style>
+        :root { --bg: #0a0a0f; --surface: #12121a; --border: #1e1e2e; --text: #e4e4ef; --muted: #8888a0; --accent: #818cf8; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+        .container { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+        nav { border-bottom: 1px solid var(--border); padding: 16px 0; }
+        nav .container { display: flex; justify-content: space-between; align-items: center; max-width: 800px; }
+        .logo { font-size: 20px; font-weight: 700; color: var(--accent); text-decoration: none; }
+        .logo span { color: var(--text); }
+        nav a { color: var(--muted); text-decoration: none; margin-left: 24px; font-size: 14px; }
+        nav a:hover { color: var(--text); }
+        h1 { font-size: 32px; font-weight: 700; margin: 48px 0 8px; }
+        h2 { font-size: 24px; font-weight: 600; margin: 40px 0 12px; color: var(--accent); }
+        h3 { font-size: 18px; font-weight: 600; margin: 28px 0 8px; }
+        p { margin: 12px 0; color: var(--muted); }
+        pre { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; overflow-x: auto; margin: 16px 0; font-size: 13px; }
+        code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; }
+        p code { background: var(--surface); padding: 2px 6px; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+        th { text-align: left; padding: 10px; border-bottom: 2px solid var(--border); color: var(--text); }
+        td { padding: 10px; border-bottom: 1px solid var(--border); color: var(--muted); }
+        .badge { display: inline-block; background: rgba(129,140,248,0.12); color: var(--accent); padding: 4px 12px; border-radius: 12px; font-size: 12px; margin-bottom: 24px; }
+        ul, ol { margin: 12px 0 12px 24px; color: var(--muted); }
+        li { margin: 6px 0; }
+        footer { border-top: 1px solid var(--border); padding: 24px 0; text-align: center; color: var(--muted); font-size: 12px; margin-top: 60px; }
+    </style>
+</head>
+<body>
+    <nav><div class="container">
+        <a href="/" class="logo">Trust<span>DID</span></a>
+        <div>
+            <a href="/spec/did-method-spec.html">Method Spec</a>
+            <a href="/spec/capability-credential.html">Credentials</a>
+            <a href="/spec/delegation-protocol.html">Delegation</a>
+            <a href="/spec/discovery-protocol.html">Discovery</a>
+            <a href="/">Home</a>
+        </div>
+    </div></nav>
+    <div class="container">
+        <h1>TrustDID Agent Method Specification</h1>
+        <span class="badge">v0.1.0 - Draft</span>
+
+        <p><strong>DID Method Name:</strong> <code>trustagent</code></p>
+        <p><strong>Conformance Target:</strong> W3C DID Core v1.1 (Candidate Recommendation, March 2026)</p>
+        <p><strong>Editors:</strong> TrustDID Foundation</p>
+
+        <h2>1. Introduction</h2>
+        <p>The <code>did:trustagent</code> method is a decentralized identifier method designed specifically for autonomous AI agents. It extends W3C DID Core v1.1 with agent-specific lifecycle management, delegation chains, capability-based authorization, and KERI-inspired pre-rotation key management.</p>
+
+        <h3>1.1 Design Goals</h3>
+        <ul>
+            <li><strong>Agent-Native</strong>: First-class support for AI agent identity lifecycle (creation, delegation, rotation, decommission)</li>
+            <li><strong>Ledger-Agnostic</strong>: Single DID method supporting EVM chains, KERI infrastructure, and web-based resolution</li>
+            <li><strong>Delegation-Aware</strong>: Built-in support for human-to-agent and agent-to-agent delegation chains</li>
+            <li><strong>Pre-Rotation</strong>: KERI-inspired key management enabling autonomous key rotation without human intervention</li>
+            <li><strong>Standards-Aligned</strong>: Full compliance with W3C DID Core v1.1, W3C VC v2.0, DIDComm v2.1</li>
+        </ul>
+
+        <h3>1.2 Conformance</h3>
+        <p>This specification conforms to W3C Decentralized Identifiers (DIDs) v1.1 [DID-CORE]. The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" are to be interpreted as described in [RFC2119].</p>
+
+        <h2>2. DID Syntax</h2>
+
+        <h3>2.1 Method-Specific Identifier</h3>
+        <pre><code>did:trustagent:&lt;network&gt;:&lt;agent-class&gt;:&lt;identifier&gt;</code></pre>
+
+        <p>Where:</p>
+        <pre><code>trustagent-did      = "did:trustagent:" network ":" agent-class ":" identifier
+network             = evm-network / keri-network / web-network
+evm-network         = "evm:" chain-id
+keri-network        = "keri"
+web-network         = "web:" domain
+chain-id            = 1*DIGIT
+domain              = 1*(ALPHA / DIGIT / "." / "-")
+agent-class         = "autonomous" / "delegated" / "ephemeral" / "org" / "human"
+identifier          = multibase-btc-encoded-public-key</code></pre>
+
+        <h3>2.2 Agent Classes</h3>
+        <table>
+            <tr><th>Class</th><th>Description</th><th>Typical Use</th></tr>
+            <tr><td><code>autonomous</code></td><td>Self-governing AI agent with independent decision authority</td><td>Standalone agents, personal assistants</td></tr>
+            <tr><td><code>delegated</code></td><td>Agent operating under delegation from a parent entity</td><td>Task-specific agents, sub-agents</td></tr>
+            <tr><td><code>ephemeral</code></td><td>Short-lived agent instance with temporary identity</td><td>Session agents, one-time task runners</td></tr>
+            <tr><td><code>org</code></td><td>Organizational identity that may delegate to agents</td><td>Companies, departments, teams</td></tr>
+            <tr><td><code>human</code></td><td>Human controller identity (delegation chain root)</td><td>Agent owners, administrators</td></tr>
+        </table>
+
+        <h3>2.3 Network Types</h3>
+        <table>
+            <tr><th>Network</th><th>Format</th><th>Ledger Backend</th></tr>
+            <tr><td>EVM</td><td><code>evm:&lt;chain-id&gt;</code></td><td>Ethereum, Polygon, Arbitrum, etc.</td></tr>
+            <tr><td>KERI</td><td><code>keri</code></td><td>Key Event Receipt Infrastructure (ledger-less)</td></tr>
+            <tr><td>Web</td><td><code>web:&lt;domain&gt;</code></td><td>HTTPS-based DID resolution</td></tr>
+        </table>
+
+        <h3>2.4 Examples</h3>
+        <pre><code>did:trustagent:evm:1:human:z6MkpTHR8VNs5xhqzV43EYm1VNkKCX2i3s9WnHJA11Yi5GQa
+did:trustagent:evm:137:delegated:z6Mkf5rGMoatrSj1f4CyvuHBeXJELe9RPdzo2PKGNCKVtZxP
+did:trustagent:keri:autonomous:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK
+did:trustagent:web:example.com:org:z6MkjchhfUsD6mmvni8mCdXHw216Xrm9bQe2xJfmm7M8Go8J
+did:trustagent:evm:42161:ephemeral:z6MktempSession123abc</code></pre>
+
+        <h2>3. DID Document</h2>
+
+        <h3>3.1 Context</h3>
+        <p>Every <code>did:trustagent</code> DID Document MUST include the following <code>@context</code> values:</p>
+        <pre><code>"@context": [
+  "https://www.w3.org/ns/did/v1",
+  "https://w3id.org/security/suites/jws-2020/v1",
+  "https://trustdid.org/ns/agent/v1"
+]</code></pre>
+
+        <h3>3.2 TrustAgent Extension</h3>
+        <p>DID Documents MAY include a <code>trustagent</code> property containing agent-specific metadata:</p>
+        <table>
+            <tr><th>Property</th><th>Type</th><th>Required</th><th>Description</th></tr>
+            <tr><td><code>agentClass</code></td><td>string</td><td>REQUIRED</td><td>One of: autonomous, delegated, ephemeral, org, human</td></tr>
+            <tr><td><code>parentDID</code></td><td>string</td><td>OPTIONAL</td><td>DID of the parent entity (for delegated/ephemeral agents)</td></tr>
+            <tr><td><code>delegationChainRoot</code></td><td>string</td><td>OPTIONAL</td><td>DID of the root human/org in the delegation chain</td></tr>
+            <tr><td><code>delegationDepth</code></td><td>integer</td><td>OPTIONAL</td><td>Depth in delegation chain (0 = root)</td></tr>
+            <tr><td><code>preRotationCommitment</code></td><td>string</td><td>OPTIONAL</td><td>Multibase-encoded hash of next public key</td></tr>
+            <tr><td><code>lifecycle</code></td><td>string</td><td>REQUIRED</td><td>Current lifecycle state</td></tr>
+            <tr><td><code>capabilities</code></td><td>array</td><td>OPTIONAL</td><td>List of granted capabilities</td></tr>
+        </table>
+
+        <h3>3.3 Lifecycle States</h3>
+        <pre><code>created --> active --> suspended --> active (resume)
+                 --> rotating --> active (rotated)
+                 --> deactivated --> decommissioned
+           suspended --> deactivated --> decommissioned</code></pre>
+
+        <table>
+            <tr><th>State</th><th>Description</th></tr>
+            <tr><td><code>created</code></td><td>Identity created but not yet activated</td></tr>
+            <tr><td><code>active</code></td><td>Fully operational identity</td></tr>
+            <tr><td><code>suspended</code></td><td>Temporarily paused (reversible)</td></tr>
+            <tr><td><code>rotating</code></td><td>Key rotation in progress</td></tr>
+            <tr><td><code>deactivated</code></td><td>Permanently deactivated (reversible to decommissioned only)</td></tr>
+            <tr><td><code>decommissioned</code></td><td>Permanently destroyed, all delegations revoked</td></tr>
+        </table>
+
+        <h3>3.4 Example DID Document</h3>
+        <p>A delegated agent DID Document includes standard W3C DID properties (<code>id</code>, <code>controller</code>, <code>verificationMethod</code>, <code>authentication</code>, <code>service</code>) plus the <code>trustagent</code> extension block with fields such as <code>agentClass</code>, <code>parentDID</code>, <code>delegationChainRoot</code>, <code>delegationDepth</code>, <code>preRotationCommitment</code>, <code>lifecycle</code>, and <code>capabilities</code>.</p>
+        <pre><code>{
+  "@context": ["https://www.w3.org/ns/did/v1", "..."],
+  "id": "did:trustagent:evm:137:delegated:z6Mkf5r...",
+  "controller": "did:trustagent:evm:137:org:z6Mkjchh...",
+  "verificationMethod": [{ "type": "Ed25519VerificationKey2020", ... }],
+  "authentication": ["...#auth-1"],
+  "service": [{ "type": "DIDCommMessaging", ... }],
+  "trustagent": {
+    "agentClass": "delegated",
+    "parentDID": "did:trustagent:evm:137:org:z6Mkjchh...",
+    "delegationDepth": 2,
+    "lifecycle": "active",
+    "capabilities": ["credential:issue", "payment:authorize:limit=1000"]
+  }
+}</code></pre>
+
+        <h2>4. Operations</h2>
+
+        <h3>4.1 Create</h3>
+        <p>To create a new <code>did:trustagent</code> DID:</p>
+        <ol>
+            <li>Generate a primary authentication keypair (Ed25519 RECOMMENDED)</li>
+            <li>Generate a pre-rotation keypair and compute commitment: <code>hash(nextPublicKey)</code></li>
+            <li>Construct the DID identifier from the multibase-encoded public key</li>
+            <li>Build the DID Document with the <code>trustagent</code> extension</li>
+            <li>Anchor the DID Document on the appropriate ledger:
+                <ul>
+                    <li><strong>EVM</strong>: Call <code>TrustDIDRegistry.createDID()</code> with document hash</li>
+                    <li><strong>KERI</strong>: Create an inception event in the KEL</li>
+                    <li><strong>Web</strong>: Publish the DID Document at <code>https://&lt;domain&gt;/.well-known/did.json</code></li>
+                </ul>
+            </li>
+            <li>Return the DID Document and key material</li>
+        </ol>
+
+        <h3>4.2 Read (Resolve)</h3>
+        <p>To resolve a <code>did:trustagent</code> DID:</p>
+        <ol>
+            <li>Parse the DID to extract network, agent class, and identifier</li>
+            <li>Route to the appropriate ledger driver based on network segment</li>
+            <li>Retrieve the DID Document from the ledger</li>
+            <li>Return a <code>ResolutionResult</code> containing the DID Document, resolution metadata, and document metadata</li>
+        </ol>
+
+        <h3>4.3 Update</h3>
+        <p>To update a <code>did:trustagent</code> DID Document:</p>
+        <ol>
+            <li>Resolve the current DID Document</li>
+            <li>Verify the requester is the controller or owner</li>
+            <li>Apply update operations (add/remove verification methods, services, capabilities)</li>
+            <li>Verify lifecycle state transitions are valid</li>
+            <li>Re-anchor the updated document on the ledger</li>
+        </ol>
+
+        <h3>4.4 Deactivate</h3>
+        <ol>
+            <li>Verify the requester is the controller or owner</li>
+            <li>Set lifecycle state to <code>deactivated</code> on the ledger</li>
+            <li>The DID Document remains resolvable but marked as deactivated</li>
+        </ol>
+
+        <h3>4.5 Key Rotation (KERI-Inspired Pre-Rotation)</h3>
+        <ol>
+            <li>Generate a new keypair</li>
+            <li>Verify: <code>hash(newPublicKey) == storedPreRotationCommitment</code></li>
+            <li>Generate the next pre-rotation commitment</li>
+            <li>Atomically update the DID Document with the new key and new commitment</li>
+            <li>The old key is immediately invalidated</li>
+        </ol>
+
+        <h3>4.6 Decommission (Agent-Specific)</h3>
+        <ol>
+            <li>Verify dual authorization (parent + agent, or parent alone)</li>
+            <li>Cascade-revoke all sub-delegations</li>
+            <li>Revoke all issued credentials</li>
+            <li>Archive the SBT reputation record</li>
+            <li>Set lifecycle to <code>decommissioned</code> (irreversible)</li>
+            <li>Zero all key material</li>
+        </ol>
+
+        <h2>5. Delegation Protocol</h2>
+
+        <h3>5.1 Delegation Chain</h3>
+        <pre><code>Human (depth 0) -> Organization (depth 1) -> Agent (depth 2) -> Sub-Agent (depth 3)</code></pre>
+        <p>Maximum delegation depth: 10 (configurable per ecosystem).</p>
+
+        <h3>5.2 Capability Delegation</h3>
+        <p>Capabilities are expressed as structured tokens: <code>resource:action[:constraint=value]</code></p>
+        <ul>
+            <li><code>credential:issue</code> - Can issue verifiable credentials</li>
+            <li><code>payment:authorize:limit=1000</code> - Can authorize payments up to 1000</li>
+            <li><code>data:read:scope=public</code> - Can read public data only</li>
+        </ul>
+        <p>A child agent's capabilities MUST be a subset of its parent's capabilities. Delegation MUST NOT escalate privileges.</p>
+
+        <h3>5.3 Delegation Credential</h3>
+        <p>Each delegation is recorded as a W3C Verifiable Credential with type <code>AgentDelegationCredential</code>, containing the delegated capabilities, delegation depth, and maximum allowed depth.</p>
+
+        <h2>6. Security Considerations</h2>
+
+        <h3>6.1 Key Management</h3>
+        <ul>
+            <li>Pre-rotation commitments MUST be computed using SHA-256</li>
+            <li>Key material MUST be stored in hardware security modules (HSMs) in production</li>
+            <li>Ephemeral agents SHOULD use short-lived keys with automatic expiration</li>
+            <li>Key rotation SHOULD be performed at regular intervals</li>
+        </ul>
+
+        <h3>6.2 Delegation Security</h3>
+        <ul>
+            <li>Delegation depth MUST be enforced on-chain</li>
+            <li>Cascading revocation MUST propagate to all descendants</li>
+            <li>Capability attenuation MUST be verified at each delegation step</li>
+            <li>Cross-network delegation SHOULD include additional verification</li>
+        </ul>
+
+        <h3>6.3 Privacy</h3>
+        <ul>
+            <li>DID Documents SHOULD minimize personally identifiable information</li>
+            <li>Selective disclosure (SD-JWT) SHOULD be used for agent attributes</li>
+            <li>Service endpoints SHOULD use encrypted DIDComm messaging</li>
+        </ul>
+
+        <h2>7. Standards Alignment</h2>
+        <table>
+            <tr><th>Standard</th><th>Status</th><th>Integration</th></tr>
+            <tr><td>W3C DID Core v1.1</td><td>Candidate Recommendation</td><td>Full compliance</td></tr>
+            <tr><td>W3C VC v2.0</td><td>Recommendation</td><td>Delegation credentials, capability tokens</td></tr>
+            <tr><td>DIDComm v2.1</td><td>DIF Approved</td><td>Agent-to-agent communication</td></tr>
+            <tr><td>SD-JWT (RFC 9901)</td><td>Internet Standard</td><td>Selective disclosure of agent attributes</td></tr>
+            <tr><td>OID4VC</td><td>Finalized</td><td>Credential issuance and presentation</td></tr>
+            <tr><td>KERI</td><td>DIF Specification</td><td>Pre-rotation key management</td></tr>
+            <tr><td>ToIP Framework</td><td>Active</td><td>Trust registry governance</td></tr>
+            <tr><td>NIST AI Agent Standards</td><td>Active Initiative</td><td>Federal alignment</td></tr>
+            <tr><td>AIS-1</td><td>v0.1 Draft</td><td>Agent identity standard alignment</td></tr>
+            <tr><td>DIF MCP-I</td><td>Active WG</td><td>Agent delegation protocol</td></tr>
+            <tr><td>CSA Agentic AI IAM</td><td>Published</td><td>Zero-trust agent identity</td></tr>
+        </table>
+
+        <h2>8. References</h2>
+        <ul>
+            <li>[DID-CORE] W3C Decentralized Identifiers (DIDs) v1.1</li>
+            <li>[VC-DATA-MODEL] W3C Verifiable Credentials Data Model v2.0</li>
+            <li>[DIDCOMM] DIDComm Messaging v2.1</li>
+            <li>[SD-JWT] RFC 9901: Selective Disclosure JWT</li>
+            <li>[OID4VCI] OpenID for Verifiable Credential Issuance 1.0</li>
+            <li>[KERI] Key Event Receipt Infrastructure</li>
+            <li>[TOIP] Trust over IP Technology Architecture</li>
+        </ul>
+    </div>
+    <footer><div class="container">TrustDID Foundation &copy; 2026</div></footer>
+</body>
+</html>

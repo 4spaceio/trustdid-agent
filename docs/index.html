@@ -53,7 +53,7 @@
 
         /* ═══════════════ Hero ═══════════════ */
         .hero { padding: 140px 0 100px; text-align: center; position: relative; }
-        .hero::before { content: ''; position: absolute; top: 64px; left: 50%; transform: translateX(-50%); width: 800px; height: 600px; background: radial-gradient(ellipse, rgba(99,102,241,0.12) 0%, transparent 70%); pointer-events: none; }
+        .hero::before { content: ''; position: absolute; top: 64px; left: 50%; transform: translateX(-50%); width: 800px; height: 400px; background: radial-gradient(ellipse, rgba(99,102,241,0.12) 0%, transparent 70%); pointer-events: none; z-index: 0; }
         .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); padding: 6px 16px; border-radius: 24px; font-size: 13px; font-weight: 500; color: var(--accent2); margin-bottom: 28px; }
         .hero-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
@@ -83,7 +83,7 @@
         .gen-btn { background: linear-gradient(135deg, var(--accent), #7c3aed); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
         .gen-btn:hover { transform: scale(1.02); }
         .gen-output { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; min-height: 80px; position: relative; }
-        .gen-output pre { font-size: 13px; line-height: 1.8; white-space: pre-wrap; word-break: break-all; }
+        .gen-output pre { font-size: 13px; line-height: 1.8; white-space: pre-wrap; word-break: break-all; max-height: 300px; overflow-y: auto; }
         .gen-output .label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
         .gen-copy { position: absolute; top: 12px; right: 12px; background: var(--surface2); border: 1px solid var(--border2); color: var(--muted); padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
         .gen-copy:hover { color: var(--text); border-color: var(--accent); }
@@ -243,7 +243,7 @@
                     </div>
                     <div class="gen-output" id="gen-doc-output" style="margin-top: 12px; display: none;">
                         <div class="label">DID Document (W3C DID Core v1.1)</div>
-                        <pre id="gen-doc" style="font-size: 12px; line-height: 1.6;"></pre>
+                        <pre id="gen-doc" style="font-size: 12px; line-height: 1.6; max-height: 280px; overflow-y: auto;"></pre>
                     </div>
                 </div>
             </div>

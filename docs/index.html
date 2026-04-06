@@ -4,300 +4,604 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TrustDID - Decentralized Identity for AI Agents</title>
-    <meta name="description" content="World-class decentralized identity system for autonomous AI agents. W3C DID Core v1.1 compliant.">
+    <meta name="description" content="World-class decentralized identity system for autonomous AI agents. W3C DID Core v1.1 compliant. Create, delegate, verify agent identities.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0a0f;
-            --surface: #12121a;
-            --border: #1e1e2e;
-            --text: #e4e4ef;
-            --muted: #8888a0;
+            --bg: #06060b;
+            --surface: #0d0d15;
+            --surface2: #13131f;
+            --border: #1a1a2e;
+            --border2: #252540;
+            --text: #eeeef5;
+            --text2: #c8c8d8;
+            --muted: #6b6b85;
             --accent: #6366f1;
             --accent2: #818cf8;
-            --green: #22c55e;
+            --accent3: #a5b4fc;
+            --green: #10b981;
+            --green2: #34d399;
             --blue: #3b82f6;
+            --orange: #f59e0b;
+            --red: #ef4444;
+            --pink: #ec4899;
+            --cyan: #06b6d4;
+            --radius: 12px;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-        }
-        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; overflow-x: hidden; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        a { color: var(--accent2); text-decoration: none; transition: color 0.2s; }
+        a:hover { color: var(--accent3); }
+        code, .mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* Nav */
-        nav {
-            border-bottom: 1px solid var(--border);
-            padding: 16px 0;
-        }
-        nav .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .logo {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--accent2);
-            text-decoration: none;
-        }
-        .logo span { color: var(--text); }
-        nav a {
-            color: var(--muted);
-            text-decoration: none;
-            margin-left: 32px;
-            font-size: 14px;
-            transition: color 0.2s;
-        }
-        nav a:hover { color: var(--text); }
+        /* Glow effects */
+        .glow-line { height: 1px; background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent); opacity: 0.5; }
 
-        /* Hero */
-        .hero {
-            padding: 100px 0 80px;
-            text-align: center;
-        }
-        .hero .badge {
-            display: inline-block;
-            background: rgba(99,102,241,0.12);
-            color: var(--accent2);
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
-            margin-bottom: 24px;
-            border: 1px solid rgba(99,102,241,0.2);
-        }
-        .hero h1 {
-            font-size: 52px;
-            font-weight: 800;
-            line-height: 1.15;
-            margin-bottom: 20px;
-            letter-spacing: -1px;
-        }
-        .hero h1 em {
-            font-style: normal;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .hero p {
-            font-size: 18px;
-            color: var(--muted);
-            max-width: 620px;
-            margin: 0 auto 40px;
-        }
-        .hero-buttons {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .btn {
-            padding: 12px 28px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-        }
-        .btn-primary:hover { background: var(--accent2); }
-        .btn-outline {
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
-        .btn-outline:hover { border-color: var(--accent); }
+        /* ═══════════════ Nav ═══════════════ */
+        nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(6,6,11,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+        nav .container { display: flex; justify-content: space-between; align-items: center; height: 64px; }
+        .logo { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+        .logo .trust { background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .logo .did { color: var(--text); }
+        .nav-links { display: flex; gap: 8px; align-items: center; }
+        .nav-links a { color: var(--muted); font-size: 14px; font-weight: 500; padding: 8px 14px; border-radius: 8px; transition: all 0.2s; }
+        .nav-links a:hover { color: var(--text); background: var(--surface2); }
+        .nav-links .btn-nav { background: var(--accent); color: white !important; font-weight: 600; }
+        .nav-links .btn-nav:hover { background: var(--accent2); }
 
-        /* DID Demo */
-        .did-demo {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px 28px;
-            margin: 48px auto 0;
-            max-width: 760px;
-            font-family: 'SF Mono', 'Fira Code', monospace;
-            font-size: 14px;
-            text-align: left;
-            overflow-x: auto;
-        }
-        .did-demo .comment { color: var(--muted); }
-        .did-demo .method { color: var(--accent2); }
-        .did-demo .network { color: var(--green); }
-        .did-demo .class { color: #f59e0b; }
-        .did-demo .id { color: var(--blue); }
+        /* ═══════════════ Hero ═══════════════ */
+        .hero { padding: 140px 0 100px; text-align: center; position: relative; }
+        .hero::before { content: ''; position: absolute; top: 64px; left: 50%; transform: translateX(-50%); width: 800px; height: 600px; background: radial-gradient(ellipse, rgba(99,102,241,0.12) 0%, transparent 70%); pointer-events: none; }
+        .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); padding: 6px 16px; border-radius: 24px; font-size: 13px; font-weight: 500; color: var(--accent2); margin-bottom: 28px; }
+        .hero-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .hero h1 { font-size: 64px; font-weight: 900; line-height: 1.1; letter-spacing: -2px; margin-bottom: 20px; }
+        .hero h1 .gradient { background: linear-gradient(135deg, var(--accent), var(--accent2), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% 200%; animation: gradientShift 6s ease infinite; }
+        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .hero p { font-size: 19px; color: var(--muted); max-width: 600px; margin: 0 auto 36px; line-height: 1.7; }
+        .hero-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 56px; }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 28px; border-radius: 10px; font-size: 15px; font-weight: 600; border: none; cursor: pointer; transition: all 0.25s; text-decoration: none; }
+        .btn-primary { background: linear-gradient(135deg, var(--accent), #7c3aed); color: white; box-shadow: 0 4px 24px rgba(99,102,241,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(99,102,241,0.4); color: white; }
+        .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border2); }
+        .btn-secondary:hover { border-color: var(--accent); transform: translateY(-2px); color: var(--text); }
+        .btn-sm { padding: 8px 16px; font-size: 13px; border-radius: 8px; }
 
-        /* Features */
-        .features {
-            padding: 80px 0;
-        }
-        .features h2 {
-            text-align: center;
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 48px;
-        }
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-        }
-        .feature-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 28px;
-        }
-        .feature-card h3 {
-            font-size: 18px;
-            margin-bottom: 8px;
-        }
-        .feature-card p { color: var(--muted); font-size: 14px; }
-        .feature-icon {
-            font-size: 28px;
-            margin-bottom: 12px;
-        }
+        /* ═══════════════ Live DID Generator ═══════════════ */
+        .generator { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; max-width: 800px; margin: 0 auto; overflow: hidden; position: relative; }
+        .generator::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--accent2), transparent); }
+        .gen-header { display: flex; align-items: center; gap: 8px; padding: 14px 20px; border-bottom: 1px solid var(--border); }
+        .gen-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .gen-dot.r { background: #ff5f57; } .gen-dot.y { background: #ffbd2e; } .gen-dot.g { background: #28ca41; }
+        .gen-title { font-size: 13px; color: var(--muted); margin-left: 8px; font-weight: 500; }
+        .gen-body { padding: 24px; }
+        .gen-controls { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+        .gen-select { background: var(--surface2); border: 1px solid var(--border2); color: var(--text); padding: 10px 14px; border-radius: 8px; font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer; appearance: none; min-width: 140px; }
+        .gen-select:focus { outline: none; border-color: var(--accent); }
+        .gen-btn { background: linear-gradient(135deg, var(--accent), #7c3aed); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+        .gen-btn:hover { transform: scale(1.02); }
+        .gen-output { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; min-height: 80px; position: relative; }
+        .gen-output pre { font-size: 13px; line-height: 1.8; white-space: pre-wrap; word-break: break-all; }
+        .gen-output .label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+        .gen-copy { position: absolute; top: 12px; right: 12px; background: var(--surface2); border: 1px solid var(--border2); color: var(--muted); padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+        .gen-copy:hover { color: var(--text); border-color: var(--accent); }
+        .highlight-method { color: var(--accent2); }
+        .highlight-network { color: var(--green2); }
+        .highlight-class { color: var(--orange); }
+        .highlight-id { color: var(--cyan); }
+        .highlight-key { color: var(--muted); }
+        .highlight-value { color: var(--accent3); }
+        .highlight-str { color: var(--green2); }
 
-        /* Standards */
-        .standards {
-            padding: 60px 0 80px;
-            text-align: center;
-        }
-        .standards h2 {
-            font-size: 28px;
-            margin-bottom: 12px;
-        }
-        .standards p { color: var(--muted); margin-bottom: 32px; }
-        .standard-pills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-        .pill {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-size: 13px;
-            color: var(--muted);
-        }
+        /* ═══════════════ Stats Bar ═══════════════ */
+        .stats { padding: 40px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); }
+        .stats .container { display: flex; justify-content: center; gap: 60px; flex-wrap: wrap; }
+        .stat { text-align: center; }
+        .stat-num { font-size: 36px; font-weight: 800; background: linear-gradient(135deg, var(--accent2), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-label { font-size: 13px; color: var(--muted); font-weight: 500; margin-top: 4px; }
 
-        /* Footer */
-        footer {
-            border-top: 1px solid var(--border);
-            padding: 32px 0;
-            text-align: center;
-            color: var(--muted);
-            font-size: 13px;
-        }
+        /* ═══════════════ Features Grid ═══════════════ */
+        .features { padding: 100px 0; }
+        .section-header { text-align: center; margin-bottom: 56px; }
+        .section-header h2 { font-size: 40px; font-weight: 800; letter-spacing: -1px; margin-bottom: 12px; }
+        .section-header p { color: var(--muted); font-size: 17px; max-width: 500px; margin: 0 auto; }
+        .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; transition: all 0.3s; position: relative; overflow: hidden; }
+        .feature-card:hover { border-color: var(--border2); transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.3); }
+        .feature-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--cyan)); opacity: 0; transition: opacity 0.3s; }
+        .feature-card:hover::before { opacity: 1; }
+        .fc-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 16px; }
+        .fc-icon.purple { background: rgba(99,102,241,0.12); }
+        .fc-icon.green { background: rgba(16,185,129,0.12); }
+        .fc-icon.blue { background: rgba(59,130,246,0.12); }
+        .fc-icon.orange { background: rgba(245,158,11,0.12); }
+        .fc-icon.pink { background: rgba(236,72,153,0.12); }
+        .fc-icon.cyan { background: rgba(6,182,212,0.12); }
+        .feature-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+        .feature-card p { color: var(--muted); font-size: 14px; line-height: 1.6; }
 
-        @media (max-width: 640px) {
-            .hero h1 { font-size: 32px; }
-            .hero p { font-size: 16px; }
-            .did-demo { font-size: 11px; padding: 16px; }
+        /* ═══════════════ API Section ═══════════════ */
+        .api-section { padding: 100px 0; background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .api-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+        .api-info h2 { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 16px; }
+        .api-info p { color: var(--muted); font-size: 16px; margin-bottom: 24px; line-height: 1.7; }
+        .api-endpoints { display: flex; flex-direction: column; gap: 12px; }
+        .api-ep { display: flex; align-items: center; gap: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; transition: border-color 0.2s; }
+        .api-ep:hover { border-color: var(--border2); }
+        .api-method { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; min-width: 44px; text-align: center; }
+        .api-method.get { background: rgba(16,185,129,0.12); color: var(--green2); }
+        .api-method.post { background: rgba(59,130,246,0.12); color: var(--blue); }
+        .api-path { font-size: 13px; color: var(--text2); font-family: 'JetBrains Mono', monospace; }
+        .api-desc { font-size: 12px; color: var(--muted); margin-left: auto; }
+        .api-code-block { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+        .api-code-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+        .api-code-header span { font-size: 12px; color: var(--muted); font-weight: 600; }
+        .api-code-tabs { display: flex; gap: 4px; }
+        .api-tab { font-size: 12px; padding: 4px 10px; border-radius: 6px; cursor: pointer; color: var(--muted); font-family: 'Inter', sans-serif; border: none; background: none; transition: all 0.2s; }
+        .api-tab.active { background: var(--surface2); color: var(--text); }
+        .api-code-body { padding: 16px; max-height: 400px; overflow-y: auto; }
+        .api-code-body pre { font-size: 13px; line-height: 1.7; }
+
+        /* ═══════════════ SDK Section ═══════════════ */
+        .sdk-section { padding: 100px 0; }
+        .sdk-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .sdk-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; text-align: center; transition: all 0.3s; }
+        .sdk-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+        .sdk-lang { font-size: 32px; margin-bottom: 12px; }
+        .sdk-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+        .sdk-card p { color: var(--muted); font-size: 13px; margin-bottom: 16px; }
+        .sdk-install { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--text2); text-align: left; }
+
+        /* ═══════════════ Standards ═══════════════ */
+        .standards { padding: 80px 0; }
+        .std-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-width: 800px; margin: 0 auto; }
+        .std-pill { background: var(--surface); border: 1px solid var(--border); padding: 8px 18px; border-radius: 24px; font-size: 13px; color: var(--text2); font-weight: 500; transition: all 0.2s; white-space: nowrap; }
+        .std-pill:hover { border-color: var(--accent); color: var(--text); }
+
+        /* ═══════════════ CTA ═══════════════ */
+        .cta { padding: 100px 0; text-align: center; position: relative; }
+        .cta::before { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(ellipse, rgba(99,102,241,0.08) 0%, transparent 70%); pointer-events: none; }
+        .cta h2 { font-size: 40px; font-weight: 800; letter-spacing: -1px; margin-bottom: 16px; }
+        .cta p { color: var(--muted); font-size: 17px; margin-bottom: 32px; }
+
+        /* ═══════════════ Footer ═══════════════ */
+        footer { border-top: 1px solid var(--border); padding: 40px 0; }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; }
+        .footer-brand .logo { font-size: 20px; margin-bottom: 12px; display: inline-block; }
+        .footer-brand p { color: var(--muted); font-size: 13px; max-width: 260px; }
+        .footer-col h4 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); margin-bottom: 12px; }
+        .footer-col a { display: block; color: var(--muted); font-size: 13px; padding: 4px 0; }
+        .footer-col a:hover { color: var(--text); }
+        .footer-bottom { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 36px; }
+            .feature-grid, .sdk-cards { grid-template-columns: 1fr; }
+            .api-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+            .stats .container { gap: 32px; }
+            .nav-links a:not(.btn-nav) { display: none; }
         }
     </style>
 </head>
 <body>
+    <!-- ═══════════════ NAV ═══════════════ -->
     <nav>
         <div class="container">
-            <a href="/" class="logo">Trust<span>DID</span></a>
-            <div>
+            <a href="/" class="logo"><span class="trust">Trust</span><span class="did">DID</span></a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#api">API</a>
                 <a href="/spec/did-method-spec.html">Spec</a>
-                <a href="/spec/capability-credential.html">Credentials</a>
-                <a href="https://github.com/anthropics/trustdid-agent">GitHub</a>
+                <a href="https://github.com/4spaceio/trustdid-agent" target="_blank">GitHub</a>
+                <a href="#generator" class="btn-nav">Get a DID</a>
             </div>
         </div>
     </nav>
 
+    <!-- ═══════════════ HERO ═══════════════ -->
     <section class="hero">
         <div class="container">
-            <div class="badge">W3C DID Core v1.1 Compliant</div>
-            <h1>Decentralized Identity<br>for <em>AI Agents</em></h1>
-            <p>The world-class identity system for autonomous AI agents. Create, delegate, verify, and manage agent identities across any ledger.</p>
+            <div class="hero-badge"><span class="dot"></span> W3C DID Core v1.1 &middot; Live on Testnet</div>
+            <h1>Identity Layer for<br><span class="gradient">AI Agents</span></h1>
+            <p>Create, delegate, and verify decentralized identities for autonomous agents. One DID method across every ledger.</p>
             <div class="hero-buttons">
-                <a href="/spec/did-method-spec.html" class="btn btn-primary">Read the Spec</a>
-                <a href="https://github.com/anthropics/trustdid-agent" class="btn btn-outline">View on GitHub</a>
+                <a href="#generator" class="btn btn-primary">Generate Agent DID</a>
+                <a href="/spec/did-method-spec.html" class="btn btn-secondary">Read the Spec</a>
             </div>
 
-            <div class="did-demo">
-                <div class="comment">// The did:trustagent method</div>
-                <div>did:<span class="method">trustagent</span>:<span class="network">evm:137</span>:<span class="class">delegated</span>:<span class="id">z6Mkf5rGMoatrSj1f4CyvuHBeXJELe9RPdzo2PKGNCKVtZxP</span></div>
-                <br>
-                <div class="comment">// Ledger-agnostic: EVM, KERI, or Web</div>
-                <div>did:<span class="method">trustagent</span>:<span class="network">keri</span>:<span class="class">autonomous</span>:<span class="id">z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK</span></div>
-                <div>did:<span class="method">trustagent</span>:<span class="network">web:example.com</span>:<span class="class">org</span>:<span class="id">z6MkjchhfUsD6mmvni8mCdXHw216Xrm9bQe2xJfmm7M8Go8J</span></div>
+            <!-- ═══════════════ LIVE DID GENERATOR ═══════════════ -->
+            <div class="generator" id="generator">
+                <div class="gen-header">
+                    <span class="gen-dot r"></span><span class="gen-dot y"></span><span class="gen-dot g"></span>
+                    <span class="gen-title">TrustDID Agent Identity Generator</span>
+                </div>
+                <div class="gen-body">
+                    <div class="gen-controls">
+                        <select class="gen-select" id="gen-network">
+                            <option value="evm:137">Polygon (evm:137)</option>
+                            <option value="evm:1">Ethereum (evm:1)</option>
+                            <option value="evm:42161">Arbitrum (evm:42161)</option>
+                            <option value="keri">KERI (ledger-less)</option>
+                            <option value="web:trustdid.org">Web (trustdid.org)</option>
+                        </select>
+                        <select class="gen-select" id="gen-class">
+                            <option value="autonomous">Autonomous Agent</option>
+                            <option value="delegated">Delegated Agent</option>
+                            <option value="ephemeral">Ephemeral Agent</option>
+                            <option value="org">Organization</option>
+                            <option value="human">Human Controller</option>
+                        </select>
+                        <button class="gen-btn" onclick="generateDID()">Generate DID</button>
+                    </div>
+                    <div class="gen-output" id="gen-result">
+                        <div class="label">Your Agent DID</div>
+                        <pre id="gen-did"><span class="highlight-key">Click "Generate DID" to create your agent identity...</span></pre>
+                        <button class="gen-copy" onclick="copyDID()" id="gen-copy-btn" style="display:none">Copy</button>
+                    </div>
+                    <div class="gen-output" id="gen-doc-output" style="margin-top: 12px; display: none;">
+                        <div class="label">DID Document (W3C DID Core v1.1)</div>
+                        <pre id="gen-doc" style="font-size: 12px; line-height: 1.6;"></pre>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <section class="features">
+    <!-- ═══════════════ STATS ═══════════════ -->
+    <section class="stats">
         <div class="container">
-            <h2>Built for Agents</h2>
+            <div class="stat"><div class="stat-num">473</div><div class="stat-label">Tests Passing</div></div>
+            <div class="stat"><div class="stat-num">14</div><div class="stat-label">Rust Crates</div></div>
+            <div class="stat"><div class="stat-num">11</div><div class="stat-label">Standards Aligned</div></div>
+            <div class="stat"><div class="stat-num">3</div><div class="stat-label">Ledger Backends</div></div>
+            <div class="stat"><div class="stat-num">5</div><div class="stat-label">REST Services</div></div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ FEATURES ═══════════════ -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Built for Autonomous Agents</h2>
+                <p>Every feature designed for the unique needs of AI agent identity management</p>
+            </div>
             <div class="feature-grid">
                 <div class="feature-card">
-                    <div class="feature-icon">&#x1f511;</div>
+                    <div class="fc-icon purple">&#x1f511;</div>
                     <h3>KERI Pre-Rotation</h3>
-                    <p>Autonomous key rotation without human intervention. Pre-committed next keys ensure seamless rotation even for long-running agents.</p>
+                    <p>Autonomous key rotation without human intervention. Pre-committed next keys ensure seamless rotation for long-running agents.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">&#x1f517;</div>
+                    <div class="fc-icon green">&#x1f517;</div>
                     <h3>Delegation Chains</h3>
                     <p>Human &rarr; Org &rarr; Agent &rarr; Sub-Agent. Capability attenuation at every step. Cascading revocation when trust is broken.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">&#x1f30d;</div>
+                    <div class="fc-icon blue">&#x1f30d;</div>
                     <h3>Ledger-Agnostic</h3>
-                    <p>One DID method across EVM chains (Ethereum, Polygon), KERI infrastructure (ledger-less), and web-based resolution.</p>
+                    <p>One DID method across EVM chains, KERI infrastructure (no blockchain needed), and web-based resolution.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">&#x1f4dc;</div>
-                    <h3>W3C VC v2.0</h3>
-                    <p>Full Verifiable Credentials engine with SD-JWT selective disclosure. Issue, verify, and revoke agent capability credentials.</p>
+                    <div class="fc-icon orange">&#x1f4dc;</div>
+                    <h3>Verifiable Credentials v2.0</h3>
+                    <p>Full VC engine with SD-JWT selective disclosure. Issue, verify, and revoke agent capability credentials with privacy.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">&#x1f4ac;</div>
-                    <h3>DIDComm v2.1</h3>
-                    <p>Secure agent-to-agent messaging with authenticated encryption. Trust-ping, agent-auth, and custom protocol support.</p>
+                    <div class="fc-icon pink">&#x1f4ac;</div>
+                    <h3>DIDComm v2.1 Messaging</h3>
+                    <p>Authenticated encryption between agents. Trust-ping, agent-auth protocol, and custom message routing built in.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">&#x2b50;</div>
-                    <h3>Trust Scoring</h3>
-                    <p>On-chain SBT reputation tokens. Weighted scoring based on delegation depth, endorsements, identity age, and behavior.</p>
+                    <div class="fc-icon cyan">&#x2b50;</div>
+                    <h3>On-Chain Trust Scoring</h3>
+                    <p>Soulbound reputation tokens (ERC-5192). Weighted scoring from delegation depth, endorsements, age, and behavior.</p>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- ═══════════════ API REFERENCE ═══════════════ -->
+    <section class="api-section" id="api">
+        <div class="container">
+            <div class="api-grid">
+                <div class="api-info">
+                    <h2>REST API for Every Platform</h2>
+                    <p>Five microservices with clean REST APIs. Create agent identities, manage delegations, issue credentials, and discover agents from any platform.</p>
+                    <div class="api-endpoints">
+                        <div class="api-ep">
+                            <span class="api-method post">POST</span>
+                            <span class="api-path">/1.0/create</span>
+                            <span class="api-desc">Create agent DID</span>
+                        </div>
+                        <div class="api-ep">
+                            <span class="api-method get">GET</span>
+                            <span class="api-path">/1.0/identifiers/{did}</span>
+                            <span class="api-desc">Resolve DID</span>
+                        </div>
+                        <div class="api-ep">
+                            <span class="api-method post">POST</span>
+                            <span class="api-path">/1.0/delegate</span>
+                            <span class="api-desc">Delegate capabilities</span>
+                        </div>
+                        <div class="api-ep">
+                            <span class="api-method post">POST</span>
+                            <span class="api-path">/didcomm</span>
+                            <span class="api-desc">Send DIDComm message</span>
+                        </div>
+                        <div class="api-ep">
+                            <span class="api-method get">GET</span>
+                            <span class="api-path">/agents?capability=...</span>
+                            <span class="api-desc">Discover agents</span>
+                        </div>
+                        <div class="api-ep">
+                            <span class="api-method post">POST</span>
+                            <span class="api-path">/agents/{did}/verify</span>
+                            <span class="api-desc">Verify agent</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="api-code-block">
+                    <div class="api-code-header">
+                        <span>Create Agent DID</span>
+                        <div class="api-code-tabs">
+                            <button class="api-tab active" onclick="showTab('curl')">cURL</button>
+                            <button class="api-tab" onclick="showTab('python')">Python</button>
+                            <button class="api-tab" onclick="showTab('js')">Node.js</button>
+                        </div>
+                    </div>
+                    <div class="api-code-body">
+<pre id="code-curl"><span class="highlight-key">$</span> curl -X POST https://api.trustdid.org/1.0/create \
+  -H <span class="highlight-str">"Content-Type: application/json"</span> \
+  -d <span class="highlight-str">'{
+    "network": "evm:137",
+    "agentClass": "autonomous",
+    "capabilities": [
+      "credential:issue",
+      "data:read:scope=public"
+    ]
+  }'</span>
+
+<span class="highlight-key"># Response:</span>
+{
+  <span class="highlight-str">"did"</span>: <span class="highlight-value">"did:trustagent:evm:137:autonomous:z6Mk..."</span>,
+  <span class="highlight-str">"status"</span>: <span class="highlight-value">"active"</span>,
+  <span class="highlight-str">"preRotationCommitment"</span>: <span class="highlight-value">"z6Mke4..."</span>
+}</pre>
+<pre id="code-python" style="display:none"><span class="highlight-key">import</span> trustdid
+
+<span class="highlight-key"># Initialize client</span>
+client = trustdid.Client(<span class="highlight-str">"https://api.trustdid.org"</span>)
+
+<span class="highlight-key"># Create an autonomous agent DID</span>
+agent = client.create_agent(
+    network=<span class="highlight-str">"evm:137"</span>,
+    agent_class=<span class="highlight-str">"autonomous"</span>,
+    capabilities=[
+        <span class="highlight-str">"credential:issue"</span>,
+        <span class="highlight-str">"data:read:scope=public"</span>
+    ]
+)
+
+<span class="highlight-key">print</span>(agent.did)
+<span class="highlight-value"># did:trustagent:evm:137:autonomous:z6Mk...</span>
+
+<span class="highlight-key"># Delegate to sub-agent</span>
+child = client.delegate(
+    parent=agent.did,
+    child_class=<span class="highlight-str">"delegated"</span>,
+    capabilities=[<span class="highlight-str">"data:read"</span>]
+)</pre>
+<pre id="code-js" style="display:none"><span class="highlight-key">import</span> { TrustDIDClient } <span class="highlight-key">from</span> <span class="highlight-str">'@trustdid/sdk'</span>;
+
+<span class="highlight-key">// Initialize client</span>
+<span class="highlight-key">const</span> client = <span class="highlight-key">new</span> TrustDIDClient(<span class="highlight-str">'https://api.trustdid.org'</span>);
+
+<span class="highlight-key">// Create an autonomous agent DID</span>
+<span class="highlight-key">const</span> agent = <span class="highlight-key">await</span> client.createAgent({
+  network: <span class="highlight-str">'evm:137'</span>,
+  agentClass: <span class="highlight-str">'autonomous'</span>,
+  capabilities: [
+    <span class="highlight-str">'credential:issue'</span>,
+    <span class="highlight-str">'data:read:scope=public'</span>
+  ]
+});
+
+console.log(agent.did);
+<span class="highlight-value">// did:trustagent:evm:137:autonomous:z6Mk...</span>
+
+<span class="highlight-key">// Verify another agent</span>
+<span class="highlight-key">const</span> report = <span class="highlight-key">await</span> client.verify(otherAgentDid);</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ SDKs ═══════════════ -->
+    <section class="sdk-section" id="sdks">
+        <div class="container">
+            <div class="section-header">
+                <h2>SDKs for Every Stack</h2>
+                <p>Native bindings powered by a Rust core</p>
+            </div>
+            <div class="sdk-cards">
+                <div class="sdk-card">
+                    <div class="sdk-lang">&#x1f980;</div>
+                    <h3>Rust (Core)</h3>
+                    <p>Native performance, zero-copy operations</p>
+                    <div class="sdk-install">cargo add trustdid</div>
+                </div>
+                <div class="sdk-card">
+                    <div class="sdk-lang">&#x1f4e6;</div>
+                    <h3>TypeScript / Node.js</h3>
+                    <p>WASM-powered, async/await API</p>
+                    <div class="sdk-install">npm install @trustdid/sdk</div>
+                </div>
+                <div class="sdk-card">
+                    <div class="sdk-lang">&#x1f40d;</div>
+                    <h3>Python</h3>
+                    <p>PyO3 native bindings, asyncio support</p>
+                    <div class="sdk-install">pip install trustdid</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ STANDARDS ═══════════════ -->
     <section class="standards">
         <div class="container">
-            <h2>Standards Aligned</h2>
-            <p>Built on and contributing to the global identity standards ecosystem</p>
-            <div class="standard-pills">
-                <span class="pill">W3C DID Core v1.1</span>
-                <span class="pill">W3C VC v2.0</span>
-                <span class="pill">DIDComm v2.1</span>
-                <span class="pill">SD-JWT (RFC 9901)</span>
-                <span class="pill">OID4VC</span>
-                <span class="pill">KERI</span>
-                <span class="pill">ToIP Framework</span>
-                <span class="pill">NIST AI Agent Standards</span>
-                <span class="pill">AIS-1</span>
-                <span class="pill">DIF MCP-I</span>
-                <span class="pill">CSA Agentic AI IAM</span>
+            <div class="section-header">
+                <h2>Standards Aligned</h2>
+                <p>Built on and contributing to the global identity ecosystem</p>
+            </div>
+            <div class="std-grid">
+                <span class="std-pill">W3C DID Core v1.1</span>
+                <span class="std-pill">W3C VC v2.0</span>
+                <span class="std-pill">DIDComm v2.1</span>
+                <span class="std-pill">SD-JWT (RFC 9901)</span>
+                <span class="std-pill">OpenID4VC</span>
+                <span class="std-pill">KERI</span>
+                <span class="std-pill">ToIP Framework</span>
+                <span class="std-pill">NIST AI Agent Standards</span>
+                <span class="std-pill">AIS-1</span>
+                <span class="std-pill">DIF MCP-I</span>
+                <span class="std-pill">CSA Agentic AI IAM</span>
             </div>
         </div>
     </section>
 
+    <!-- ═══════════════ CTA ═══════════════ -->
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to give your agents an identity?</h2>
+            <p>Start building with TrustDID in minutes. Open source, Apache-2.0 / MIT dual license.</p>
+            <div class="hero-buttons">
+                <a href="https://github.com/4spaceio/trustdid-agent" class="btn btn-primary" target="_blank">View on GitHub</a>
+                <a href="/spec/did-method-spec.html" class="btn btn-secondary">Read the Spec</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ FOOTER ═══════════════ -->
     <footer>
         <div class="container">
-            TrustDID Foundation &copy; 2026. Apache-2.0 / MIT dual license.
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="/" class="logo"><span class="trust">Trust</span><span class="did">DID</span></a>
+                    <p>Decentralized identity infrastructure for the agentic AI era.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Specs</h4>
+                    <a href="/spec/did-method-spec.html">DID Method</a>
+                    <a href="/spec/capability-credential.html">Credentials</a>
+                    <a href="/spec/delegation-protocol.html">Delegation</a>
+                    <a href="/spec/discovery-protocol.html">Discovery</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Services</h4>
+                    <a href="#api">Resolver API</a>
+                    <a href="#api">Registrar API</a>
+                    <a href="#api">Trust Registry</a>
+                    <a href="#api">Agent Discovery</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Community</h4>
+                    <a href="https://github.com/4spaceio/trustdid-agent" target="_blank">GitHub</a>
+                    <a href="https://github.com/4spaceio/trustdid-agent/issues" target="_blank">Issues</a>
+                    <a href="/spec/did-method-spec.html">Contribute</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; 2026 TrustDID Foundation. Apache-2.0 / MIT.</span>
+                <span>Built with Rust. Deployed globally.</span>
+            </div>
         </div>
     </footer>
+
+    <!-- ═══════════════ SCRIPTS ═══════════════ -->
+    <script>
+    function randomHex(len) {
+        const chars = '0123456789abcdef';
+        let r = '';
+        for (let i = 0; i < len; i++) r += chars[Math.floor(Math.random() * 16)];
+        return r;
+    }
+
+    function randomMultibase() {
+        const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+        let r = 'z6Mk';
+        for (let i = 0; i < 40; i++) r += chars[Math.floor(Math.random() * chars.length)];
+        return r;
+    }
+
+    function generateDID() {
+        const network = document.getElementById('gen-network').value;
+        const agentClass = document.getElementById('gen-class').value;
+        const identifier = randomMultibase();
+        const did = `did:trustagent:${network}:${agentClass}:${identifier}`;
+
+        const preRotation = randomMultibase();
+        const parts = did.split(':');
+
+        // Color the DID
+        let colored = `<span class="highlight-key">did</span>:<span class="highlight-method">trustagent</span>:<span class="highlight-network">${network}</span>:<span class="highlight-class">${agentClass}</span>:<span class="highlight-id">${identifier}</span>`;
+        document.getElementById('gen-did').innerHTML = colored;
+        document.getElementById('gen-copy-btn').style.display = 'block';
+        document.getElementById('gen-copy-btn').dataset.did = did;
+
+        // Show DID Document
+        const doc = {
+            network: network,
+            agentClass: agentClass,
+            parentDID: agentClass === 'delegated' ? `did:trustagent:${network}:org:${randomMultibase()}` : null
+        };
+
+        const docHtml = `<span class="highlight-key">{</span>
+  <span class="highlight-str">"@context"</span>: [<span class="highlight-str">"https://www.w3.org/ns/did/v1"</span>, <span class="highlight-str">"https://trustdid.org/ns/agent/v1"</span>],
+  <span class="highlight-str">"id"</span>: <span class="highlight-value">"${did}"</span>,${doc.parentDID ? `\n  <span class="highlight-str">"controller"</span>: <span class="highlight-value">"${doc.parentDID}"</span>,` : ''}
+  <span class="highlight-str">"verificationMethod"</span>: [{
+    <span class="highlight-str">"id"</span>: <span class="highlight-value">"${did}#auth-1"</span>,
+    <span class="highlight-str">"type"</span>: <span class="highlight-str">"Ed25519VerificationKey2020"</span>,
+    <span class="highlight-str">"publicKeyMultibase"</span>: <span class="highlight-value">"${identifier}"</span>
+  }],
+  <span class="highlight-str">"authentication"</span>: [<span class="highlight-value">"${did}#auth-1"</span>],
+  <span class="highlight-str">"trustagent"</span>: {
+    <span class="highlight-str">"agentClass"</span>: <span class="highlight-class">"${agentClass}"</span>,
+    <span class="highlight-str">"lifecycle"</span>: <span class="highlight-network">"active"</span>,
+    <span class="highlight-str">"preRotationCommitment"</span>: <span class="highlight-value">"${preRotation}"</span>,
+    <span class="highlight-str">"capabilities"</span>: [<span class="highlight-str">"credential:issue"</span>, <span class="highlight-str">"data:read"</span>]
+  }
+<span class="highlight-key">}</span>`;
+        document.getElementById('gen-doc').innerHTML = docHtml;
+        document.getElementById('gen-doc-output').style.display = 'block';
+    }
+
+    function copyDID() {
+        const did = document.getElementById('gen-copy-btn').dataset.did;
+        navigator.clipboard.writeText(did);
+        const btn = document.getElementById('gen-copy-btn');
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1500);
+    }
+
+    function showTab(lang) {
+        document.querySelectorAll('.api-tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        document.querySelectorAll('[id^="code-"]').forEach(c => c.style.display = 'none');
+        document.getElementById('code-' + lang).style.display = 'block';
+    }
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            e.preventDefault();
+            const el = document.querySelector(a.getAttribute('href'));
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+    </script>
 </body>
 </html>

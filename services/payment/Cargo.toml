@@ -1,14 +1,12 @@
 [package]
-name = "trustdid-registrar"
-description = "TrustDID Universal Registrar service"
+name = "trustdid-payment"
+description = "TrustDID Payment and Subscription service"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
 [dependencies]
 trustdid-core = { workspace = true }
-trustdid-crypto = { workspace = true }
-trustdid-agent = { path = "../../crates/trustdid-agent" }
 tokio = { workspace = true }
 axum = { workspace = true }
 serde = { workspace = true }
@@ -19,3 +17,7 @@ tower-http = { workspace = true }
 uuid = { workspace = true }
 chrono = { workspace = true }
 reqwest = { version = "0.12", features = ["json"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+hmac = "0.12"
+sha2 = { workspace = true }
+hex = "0.4"

@@ -102,6 +102,31 @@
         .stat-num { font-size: 36px; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .stat-label { font-size: 13px; color: var(--muted); font-weight: 500; margin-top: 4px; }
 
+        /* ═══════════════ Pricing ═══════════════ */
+        .pricing { padding: 100px 0; }
+        .pricing-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .pricing-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px 24px; display: flex; flex-direction: column; transition: all 0.3s; position: relative; }
+        .pricing-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(99,102,241,0.08); }
+        .pricing-card.featured { border-color: var(--accent); box-shadow: 0 8px 32px rgba(99,102,241,0.1); }
+        .pricing-card.featured::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--cyan)); border-radius: var(--radius) var(--radius) 0 0; }
+        .pricing-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, var(--accent), #7c3aed); color: white; font-size: 11px; font-weight: 700; padding: 4px 14px; border-radius: 12px; white-space: nowrap; }
+        .pricing-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+        .pricing-desc { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+        .pricing-price { margin-bottom: 20px; }
+        .pricing-amount { font-size: 42px; font-weight: 800; letter-spacing: -1px; background: linear-gradient(135deg, var(--accent), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .pricing-period { font-size: 14px; color: var(--muted); font-weight: 500; }
+        .pricing-features { list-style: none; flex: 1; margin-bottom: 24px; }
+        .pricing-features li { font-size: 13px; color: var(--text2); padding: 5px 0; display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+        .pricing-features li::before { content: '\2713'; color: var(--green); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+        .btn-pricing { display: block; text-align: center; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; text-decoration: none; font-family: 'Inter', sans-serif; }
+        .btn-pricing.primary { background: linear-gradient(135deg, var(--accent), #7c3aed); color: white; box-shadow: 0 4px 16px rgba(99,102,241,0.25); }
+        .btn-pricing.primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(99,102,241,0.35); color: white; }
+        .btn-pricing.secondary { background: white; color: var(--text); border: 1px solid var(--border2); }
+        .btn-pricing.secondary:hover { border-color: var(--accent); color: var(--text); }
+        @media (max-width: 768px) {
+            .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
+        }
+
         /* ═══════════════ Features Grid ═══════════════ */
         .features { padding: 100px 0; }
         .section-header { text-align: center; margin-bottom: 56px; }
@@ -193,6 +218,7 @@
             <a href="/" class="logo"><span class="trust">Trust</span><span class="did">DID</span></a>
             <div class="nav-links">
                 <a href="#features">Features</a>
+                <a href="#pricing">Pricing</a>
                 <a href="#api">API</a>
                 <a href="/spec/did-method-spec.html">Spec</a>
                 <a href="https://github.com/4spaceio/trustdid-agent" target="_blank">GitHub</a>
@@ -258,6 +284,93 @@
             <div class="stat"><div class="stat-num">11</div><div class="stat-label">Standards Aligned</div></div>
             <div class="stat"><div class="stat-num">3</div><div class="stat-label">Ledger Backends</div></div>
             <div class="stat"><div class="stat-num">5</div><div class="stat-label">REST Services</div></div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ PRICING ═══════════════ -->
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="section-header">
+                <h2>Simple, Transparent Pricing</h2>
+                <p>Start free. Scale when you're ready. No hidden fees.</p>
+            </div>
+            <div class="pricing-grid">
+                <!-- Developer (Free) -->
+                <div class="pricing-card">
+                    <div class="pricing-name">Developer</div>
+                    <div class="pricing-desc">For testing and prototyping</div>
+                    <div class="pricing-price">
+                        <span class="pricing-amount">Free</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>5 active Agent DIDs</li>
+                        <li>Delegation depth: 2</li>
+                        <li>KERI network only</li>
+                        <li>Issue credentials</li>
+                        <li>100 DIDComm msgs/day</li>
+                        <li>60 API calls/min</li>
+                        <li>Community support</li>
+                    </ul>
+                    <button class="btn-pricing secondary" onclick="startCheckout('developer')">Get Started Free</button>
+                </div>
+                <!-- Startup -->
+                <div class="pricing-card">
+                    <div class="pricing-name">Startup</div>
+                    <div class="pricing-desc">For growing teams and products</div>
+                    <div class="pricing-price">
+                        <span class="pricing-amount">$49</span>
+                        <span class="pricing-period">/month</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>100 active Agent DIDs</li>
+                        <li>Delegation depth: 5</li>
+                        <li>KERI + Web networks</li>
+                        <li>SD-JWT selective disclosure</li>
+                        <li>10,000 DIDComm msgs/day</li>
+                        <li>600 API calls/min</li>
+                        <li>Email support (48h)</li>
+                    </ul>
+                    <button class="btn-pricing secondary" onclick="startCheckout('startup')">Subscribe</button>
+                </div>
+                <!-- Scale (Featured) -->
+                <div class="pricing-card featured">
+                    <span class="pricing-badge">Most Popular</span>
+                    <div class="pricing-name">Scale</div>
+                    <div class="pricing-desc">For production workloads</div>
+                    <div class="pricing-price">
+                        <span class="pricing-amount">$199</span>
+                        <span class="pricing-period">/month</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>Unlimited Agent DIDs</li>
+                        <li>Delegation depth: 10</li>
+                        <li>All networks (KERI+Web+EVM)</li>
+                        <li>SD-JWT + OID4VC flows</li>
+                        <li>100,000 DIDComm msgs/day</li>
+                        <li>6,000 API calls/min</li>
+                        <li>Priority support (4h)</li>
+                    </ul>
+                    <button class="btn-pricing primary" onclick="startCheckout('scale')">Subscribe</button>
+                </div>
+                <!-- Enterprise -->
+                <div class="pricing-card">
+                    <div class="pricing-name">Enterprise</div>
+                    <div class="pricing-desc">Custom solutions at scale</div>
+                    <div class="pricing-price">
+                        <span class="pricing-amount">Custom</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>Unlimited Agent DIDs</li>
+                        <li>Configurable delegation depth</li>
+                        <li>All networks + custom</li>
+                        <li>Full credential stack</li>
+                        <li>Unlimited DIDComm msgs</li>
+                        <li>Custom API rate limits</li>
+                        <li>Dedicated support</li>
+                    </ul>
+                    <a href="mailto:sales@trustdid.org" class="btn-pricing secondary">Contact Sales</a>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -502,9 +615,9 @@ console.log(agent.did);
                 </div>
                 <div class="footer-col">
                     <h4>Services</h4>
+                    <a href="#pricing">Pricing</a>
                     <a href="#api">Resolver API</a>
                     <a href="#api">Registrar API</a>
-                    <a href="#api">Trust Registry</a>
                     <a href="#api">Agent Discovery</a>
                 </div>
                 <div class="footer-col">
@@ -592,6 +705,66 @@ console.log(agent.did);
         event.target.classList.add('active');
         document.querySelectorAll('[id^="code-"]').forEach(c => c.style.display = 'none');
         document.getElementById('code-' + lang).style.display = 'block';
+    }
+
+    // Stripe checkout
+    async function startCheckout(planId) {
+        if (planId === 'developer') {
+            // Free tier -- prompt for email, auto-activate
+            const email = prompt('Enter your email to activate the free Developer plan:');
+            if (!email) return;
+            try {
+                const resp = await fetch('https://api.trustdid.org/billing/checkout-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        plan_id: 'developer',
+                        customer_email: email,
+                        customer_did: '',
+                        success_url: window.location.origin + '/?plan=developer&activated=true',
+                        cancel_url: window.location.origin + '/#pricing',
+                    })
+                });
+                const data = await resp.json();
+                alert('Free Developer plan activated! You can now create up to 5 Agent DIDs.');
+            } catch (e) {
+                alert('Free plan activated locally. Connect to the API to start creating DIDs.');
+            }
+            return;
+        }
+
+        if (planId === 'enterprise') {
+            window.location.href = 'mailto:sales@trustdid.org?subject=TrustDID Enterprise Inquiry';
+            return;
+        }
+
+        // Paid plans -- redirect to Stripe Checkout
+        const email = prompt('Enter your email to subscribe to the ' + planId.charAt(0).toUpperCase() + planId.slice(1) + ' plan:');
+        if (!email) return;
+
+        try {
+            const resp = await fetch('https://api.trustdid.org/billing/checkout-session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    plan_id: planId,
+                    customer_email: email,
+                    customer_did: '',
+                    success_url: window.location.origin + '/?plan=' + planId + '&success=true',
+                    cancel_url: window.location.origin + '/#pricing',
+                })
+            });
+            const data = await resp.json();
+            if (data.checkout_url) {
+                window.location.href = data.checkout_url;
+            } else if (data.error) {
+                alert('Error: ' + data.error);
+            } else {
+                alert('Checkout session created. Redirecting...');
+            }
+        } catch (e) {
+            alert('Payment service is not yet available. Please try again later or contact sales@trustdid.org.');
+        }
     }
 
     // Smooth scroll

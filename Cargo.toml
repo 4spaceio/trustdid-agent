@@ -20,6 +20,7 @@ members = [
     "services/mediator",
     "services/trust-registry",
     "services/discovery",
+    "services/payment",
 ]
 
 [workspace.package]

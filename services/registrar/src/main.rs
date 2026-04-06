@@ -32,6 +32,9 @@ use trustdid_core::{AgentClass, Capability};
 struct AppState {
     agent_mgr: AgentManager,
     delegation_mgr: DelegationManager,
+    /// URL of the payment service for subscription validation.
+    payment_url: Option<String>,
+    http_client: reqwest::Client,
 }
 
 // ---------------------------------------------------------------------------
@@ -107,10 +110,58 @@ async fn health() -> Json<HealthResponse> {
     })
 }
 
+/// Validate a DID's subscription before allowing an action.
+/// Fail-open: if the payment service is unreachable, allow the request.
+async fn validate_subscription(
+    state: &AppState,
+    caller_did: &str,
+    action: &str,
+) -> Option<(bool, String)> {
+    let payment_url = state.payment_url.as_ref()?;
+
+    let url = format!(
+        "{}/billing/validate/{}?action={}",
+        payment_url, caller_did, action
+    );
+
+    match state.http_client.get(&url).send().await {
+        Ok(resp) => {
+            if let Ok(body) = resp.json::<serde_json::Value>().await {
+                let allowed = body.get("allowed").and_then(|v| v.as_bool()).unwrap_or(true);
+                let reason = body
+                    .get("reason")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                Some((allowed, reason))
+            } else {
+                None // Fail-open
+            }
+        }
+        Err(e) => {
+            tracing::warn!("Payment service unreachable, allowing request (fail-open): {e}");
+            None // Fail-open
+        }
+    }
+}
+
 async fn create_agent(
     State(state): State<Arc<AppState>>,
     Json(req): Json<CreateRequest>,
 ) -> impl IntoResponse {
+    // Validate subscription before creating DID.
+    let caller = req.parent_did.as_deref().unwrap_or("anonymous");
+    if let Some((allowed, reason)) = validate_subscription(&state, caller, "create").await {
+        if !allowed {
+            return (
+                StatusCode::FORBIDDEN,
+                Json(serde_json::to_value(ErrorResponse {
+                    error: reason,
+                }).unwrap()),
+            );
+        }
+    }
+
     match state
         .agent_mgr
         .create(req.agent_class, req.parent_did, req.capabilities)
@@ -212,9 +263,16 @@ async fn main() {
     let delegation_mgr = DelegationManager::new();
     let agent_mgr = AgentManager::new(delegation_mgr.clone());
 
+    let payment_url = std::env::var("PAYMENT_SERVICE_URL").ok();
+    if let Some(ref url) = payment_url {
+        info!("Payment validation enabled: {url}");
+    }
+
     let state = Arc::new(AppState {
         agent_mgr,
         delegation_mgr,
+        payment_url,
+        http_client: reqwest::Client::new(),
     });
 
     let app = Router::new()
